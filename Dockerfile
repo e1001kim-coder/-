@@ -1,19 +1,29 @@
-# Dockerfile for OpenCLAW Installation
+# Dockerfile for OpenCLAW
 
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Use Ubuntu as the base image
+FROM ubuntu:20.04
+
+# Set the environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update and install required packages
+RUN apt-get update && \
+    apt-get install -y \
+    python3.9 \
+    python3-pip \
+    cmake \
+    build-essential \
+    git \
+    && apt-get clean
+
+# Install Clawpack/OpenCLAW
+git clone https://github.com/clawpack/clawpack.git /opt/clawpack
+RUN cd /opt/clawpack && \
+    git checkout master && \
+    pip3 install -r requirements.txt
 
 # Set the working directory
-WORKDIR /app
+WORKDIR /opt/clawpack
 
-# Copy the requirements file into the container at /app
-COPY requirements.txt .
-
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the current directory contents into the container at /app
-COPY . .
-
-# Run the application
-CMD ["python", "your_script.py"]
+# Command to run OpenCLAW
+CMD ["python3.9", "-m", "clawpack"]
